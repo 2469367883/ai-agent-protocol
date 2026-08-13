@@ -86,67 +86,64 @@
 
 **计划必须建立在已确认的项目现状、已有实现和项目约定基础上，不得基于未验证的假设制定方案。** 如果计划涉及的文件、模块、接口尚未查看过，必须先查看确认，再据此出计划——不允许"凭经验先想方案，再回头看代码对不对"这种顺序。
 
-**Transform tasks into verifiable goals:**
-将任务转化为可验证的目标：
-- "Add validation" → "Write tests for invalid inputs, then make them pass"（先写异常输入测试，再使其通过）
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"（先写复现测试，再修复）
-- "Refactor X" → "Ensure tests pass before and after"（确保重构前后测试通过）
+**将任务转化为可验证的目标：**
+- "增加校验" → "先为非法输入写测试，再让测试通过"
+- "修复这个 bug" → "先写一个能复现该 bug 的测试，再修复它"
+- "重构 X" → "确保重构前后测试都能通过"
 
-**For multi-step tasks, state a brief plan:**
-对于多步骤任务，陈述简要计划：
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
+**多步骤任务需陈述简要计划：**
+1. [步骤] → 验证：[检查项]
+2. [步骤] → 验证：[检查项]
+3. [步骤] → 验证：[检查项]
 
 ---
 
 ## 1. 思辨原则
 
-**核心**：从原始需求出发思考，不盲从用户表面指令。Don't assume. Don't hide confusion. Surface tradeoffs.
+**核心**：从原始需求出发思考，不盲从用户表面指令。不假设、不隐瞒疑问、主动说明权衡。
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.（明确说明假设；不确定时先提问。）
-- If multiple interpretations exist, present them - don't pick silently.（存在多种理解时全部说明，不要自行选择。）
-- If a simpler approach exists, say so. Push back when warranted.（有更简单方案时主动提出。）
-- If something is unclear, stop. Name what's confusing. Ask.（信息不足时停止实现，先澄清。）
-- Don't fill in gaps with your own assumptions and hope for the best.（不脑补需求，不隐瞒疑问。）
-- Distinguish "what the user wants" from "what the user needs".（区分"想要"和"需要"，不一致时说出来。）
+实现前：
+- 明确说明假设；不确定时先提问。
+- 存在多种理解时，全部列出，不要自行选择。
+- 有更简单的方案时主动提出，必要时可以对当前方案提出异议。
+- 信息不足就停下来，说清楚哪里不清楚，再问。
+- 不脑补需求，不隐瞒疑问。
+- 区分"用户想要的"和"用户需要的"，两者不一致时要说出来。
 
 ---
 
 ## 2. 产出纪律
 
-**核心**：Minimum necessary change within the project's existing architecture and conventions. Touch only what you must.
-（在项目现有架构、模式和编码规范内，做最小必要修改——"少"不是第一目标，"贴合项目现有做法且不多改"才是。）
+**核心**：在项目现有架构和编码规范内做 minimum necessary change（最小必要修改）——"少"不是第一目标，"贴合项目现有做法且不多改"才是。
 
 - **项目既有模式优先于通用意义上的"简单"**：实现新需求时，优先遵循项目现有的架构、抽象、依赖和同类功能的实现方式。不得仅因为某种方案代码更少、更简单，就绕过项目现有模式。
   > 例外：如果发现现有模式本身有问题（如明显的反模式、已知会导致 bug 的写法），仍应按第 1 章"思辨原则"指出并等待用户决定，而不是默默沿用，也不能借口"遵循规范"回避提出质疑。
-- No features beyond what was asked.（不增加未要求功能。）
-- No abstractions for single-use code, unless the project's existing pattern already calls for one, or correctness genuinely requires it.（不要仅为单次使用而新增抽象——除非项目已有的模式本来就是这么做的，或者正确性确实需要，此时以贴合项目现有模式为准。）
-- No "flexibility" or "configurability" that wasn't requested.（不做未要求的灵活性配置。）
-- If the same requirement can be satisfied with a smaller implementation while preserving the project's existing architecture, patterns, correctness, and maintainability, prefer the smaller implementation.（如果同样能满足需求、且不破坏项目现有架构与正确性/可维护性的前提下存在更小的等价实现，优先选择更小的实现——但如果项目现有的实现方式本来就是这个体量，不要为了"看起来更精简"而刻意压缩行数、把复杂度藏起来。）
-- When editing existing code:
-  - Don't "improve" adjacent code, comments, or formatting.（不要"顺便"改进邻近代码。）
-  - Don't refactor things that aren't broken.（不要重构未损坏的代码。）
-  - Match existing style, even if you'd do it differently.（即使风格不同，也要匹配现有代码风格。）
-- When your changes create orphans:
-  - Remove imports/variables/functions that YOUR changes made unused.（删除因你的修改而产生的无用代码。）
-  - Don't remove pre-existing dead code unless asked.（除非被要求，否则不删除原有的死代码。）
-- **The test**: Every changed line must be directly justified by the user's request, the existing project architecture, correctness requirements, or necessary verification.（每处修改都必须能够直接说明其与用户需求、项目现有架构、正确性要求或必要验证之间的关系——不必逐行对应用户原话，但必须有明确理由，不能是顺手为之。）
+- 不增加未要求的功能。
+- 不要仅为单次使用而新增抽象——除非项目已有模式本来就是这么做的，或者正确性确实需要。
+- 不做未被要求的"灵活性"或"可配置性"。
+- 如果同样能满足需求、且不破坏项目现有架构与正确性/可维护性的前提下存在更小的等价实现，优先选择更小的实现——但如果项目现有实现方式本来就是这个体量，不要为了"看起来精简"而刻意压缩行数、把复杂度藏起来。
+- 修改现有代码时：
+  - 不要"顺便"改进邻近的代码、注释或格式。
+  - 不要重构没有问题的代码。
+  - 匹配现有代码风格，即使你会用别的方式写。
+- 如果修改产生了孤立代码：
+  - 删除因你的修改而变得无用的 import/变量/函数。
+  - 除非被明确要求，否则不要删除原有的死代码。
+- **检验标准**：每一处改动都必须能直接归因于用户需求、项目现有架构、正确性要求，或必要的验证——不必逐字对应用户原话，但必须有明确理由，不能是顺手为之。
 
 ---
 
 ## 3. 代码规范
 
-All modified code must follow project conventions and be easy to maintain and read.
+所有修改过的代码都必须符合项目规范，易于维护和阅读。
 
-- Follow the project's existing naming conventions, indentation, and style guide.
-- Variable and function names must be self-explanatory — no single-letter names except loop counters.
-- Keep functions focused; split when a function handles clearly distinct responsibilities, not mechanically for its own sake.（函数应保持职责聚焦，在确实承担多个明显不同职责时才拆分，不要为了"拆"而拆——一个简单直白的处理流程没必要硬拆成好几个只被调用一次的小函数。）
-- Avoid magic numbers and hardcoded strings — extract to constants or configs.
-- Write clear, concise comments only when the "why" is non-obvious; never comment the "what".
-- Ensure consistent formatting across all modified files.
-- When in doubt, prioritize readability over cleverness.
+- 遵循项目现有的命名规范、缩进和风格指南。
+- 变量和函数名必须自解释——除循环计数器外不用单字母命名。
+- 函数应保持职责聚焦，在确实承担多个明显不同职责时才拆分，不要为了"拆"而拆——一个简单直白的处理流程没必要硬拆成好几个只被调用一次的小函数。
+- 避免魔法数字和硬编码字符串，提取为常量或配置。
+- 只在"为什么这么做"不直观时才写注释，不写"做了什么"的注释。
+- 确保所有改动文件的格式一致。
+- 拿不准时，可读性优先于取巧。
 
 ---
 
